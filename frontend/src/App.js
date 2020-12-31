@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 function App() {
   const [status, setStatus] = useState(false);
   const [username, setUsername] = useState('');
-  const [messages, setMessages] = useState([{}]);
+  const [messages, setMessages] = useState([]);
   const ws = useRef(null);
 
   useEffect(() => {
