@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -26,7 +27,8 @@ func main() {
 }
 
 func handleWebSockets(w http.ResponseWriter, r *http.Request) {
-	ws, err := upgrader.Upgrade(w, r, nil) // upgrade http request to web socket
+	upgrader.CheckOrigin = func(*http.Request) bool { return true } // allow requests from wherever
+	ws, err := upgrader.Upgrade(w, r, nil)                          // upgrade http request to web socket
 	if err != nil {
 		log.Fatal("Upgrade: ", err)
 	}
@@ -45,6 +47,8 @@ func handleWebSockets(w http.ResponseWriter, r *http.Request) {
 			delete(clients, ws) // remove websocket from global map
 			break
 		}
+		fmt.Println("got a message")
+		fmt.Printf("%v", msg)
 
 		broadcast <- msg // send received message to broadcast channel
 	}
@@ -53,6 +57,8 @@ func handleWebSockets(w http.ResponseWriter, r *http.Request) {
 func handleMessages() {
 	for {
 		msg := <-broadcast // get message from channel
+		fmt.Println("message from broadcast channel")
+		fmt.Printf("%v", msg)
 
 		// send message to connected web sockets
 		for client := range clients {

@@ -1,13 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 function App() {
   const [status, setStatus] = useState(false);
   const [username, setUsername] = useState('');
-  const [messages, setMessages] = useState([{ "username": "john", "message": "hi there" }, { "username": "josh", "message": "Never taalk to me again you fucking weirdo" }]);
+  const [messages, setMessages] = useState([{}]);
+  const ws = useRef(null);
 
   useEffect(() => {
-    console.log(status);
-    console.log(messages);
+    if (!ws.current) return;
+
+    ws.current.onmessage = (e) => {
+      const message = JSON.parse(e.data);
+
+      setMessages(messages.concat(message));
+
+      console.log("e", message);
+    };
   });
 
   const handleUsername = (e) => {
@@ -15,11 +23,16 @@ function App() {
     const username = e.target.username.value;
     setUsername(username);
     setStatus(prevStatus => !prevStatus);
+
+    ws.current = new WebSocket("ws://localhost:8000/ws");
   }
 
   const handleMessages = (e) => {
     e.preventDefault();
-    console.log("not implemented yet");
+    const message = e.target.message.value;
+    const toSend = {"username": username, "message": message};
+
+    ws.current.send(JSON.stringify(toSend))
   }
 
   return (
@@ -47,7 +60,7 @@ function App() {
             }
             </div>
             <form onSubmit={handleMessages}>
-              <input type='text' name='username' placeholder='enter message' />
+              <input type='text' name='message' placeholder='enter message' />
               <input type='submit' value='enter' />
             </form>
           </div>
