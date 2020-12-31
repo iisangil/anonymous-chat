@@ -40,7 +40,7 @@ function App() {
       <header>
         <nav>
           <div>
-            <p>Anonymous Chat</p>
+            <p>Simple Chat</p>
           </div>
         </nav>
       </header>
