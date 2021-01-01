@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import './App.css';
 
 function App() {
   const [status, setStatus] = useState(false);
   const [username, setUsername] = useState('');
   const [messages, setMessages] = useState([]);
   const ws = useRef(null);
+  const [text, setText] = useState('');
 
   useEffect(() => {
     if (!ws.current) return;
@@ -33,6 +35,14 @@ function App() {
     const toSend = {"username": username, "message": message};
 
     ws.current.send(JSON.stringify(toSend))
+
+    setText("");
+  }
+
+  const handleText = (e) => {
+    e.preventDefault();
+    const { value } = e.target;
+    setText(value);
   }
 
   return (
@@ -48,26 +58,26 @@ function App() {
         <div>
           {status &&
           <div>
-            <div>
+            <div >
             {messages.map((message) => {
               return (
-              <li>
-                  <p>{message.username}</p>
-                  <p>{message.message}</p>
-              </li>
+              <ul>
+                  <p id="username">{message.username}</p>
+                  <li id="message">{message.message}</li>
+              </ul>
               )
             })
             }
             </div>
             <form onSubmit={handleMessages}>
-              <input type='text' name='message' placeholder='enter message' />
+              <input type='text' name='message' placeholder='enter message' value={text} onChange={handleText} autoComplete="off" />
               <input type='submit' value='enter' />
             </form>
           </div>
           }
           {!status &&
           <form onSubmit={handleUsername}>
-            <input type='text' name='username' placeholder='enter username' />
+            <input type='text' name='username' placeholder='enter username' autoComplete="off" />
             <input type='submit' value='enter' />
           </form>
           }
