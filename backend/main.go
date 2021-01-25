@@ -9,22 +9,20 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type message struct {
+type Message struct {
 	Username string `json:"username"`
 	Message  string `json:"message"`
-	Channel string `json:"channel"`
+	Channel  string `json:"channel"`
 }
 
 var clients = make(map[*websocket.Conn]bool) // connected clients
-var broadcast = make(chan message)           // channel to broadcast messages
+var broadcast = make(chan Message)           // channel to broadcast messages
 var upgrader = websocket.Upgrader{}          // upgrader for websockets
 
 func main() {
-	hub := MakeHub()
+	hub := makeHub()
 	r := mux.NewRouter()
 	r.HandleFunc("/ws/{channel}", hub.handleWebSockets)
-
-	go 
 }
 
 func main() {
