@@ -9,12 +9,26 @@ type Channel struct {
 	channel chan message
 }
 
-// MakeChannel constructor for channels
-func MakeChannel(name string) *Channel {
+// constructor for channels
+func makeChannel(name string) *Channel {
 	channel := new(Channel)
 	channel.name = name
 	channel.clients = make(map[*websocket.Conn]bool)
 	channel.channel = make(chan message)
 
 	return channel
+}
+
+func (c *Channel) joinChannel(ws *websocket.Conn) {
+	c.clients[ws] = true // add new websocket to room
+}
+
+func (c *Channel) HandleMessages() {
+	for {
+		msg := <-c.channel
+
+		for client := range clients {
+
+		}
+	}
 }

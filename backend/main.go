@@ -22,7 +22,6 @@ var upgrader = websocket.Upgrader{}          // upgrader for websockets
 func main() {
 	hub := MakeHub()
 	r := mux.NewRouter()
-	r.HandleFunc("/ws", hub.handleWebSockets)
 	r.HandleFunc("/ws/{channel}", hub.handleWebSockets)
 
 	go 

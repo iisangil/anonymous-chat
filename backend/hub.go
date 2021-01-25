@@ -14,8 +14,8 @@ type Hub struct {
 	upgrader websocket.Upgrader
 }
 
-// MakeHub constructor for hub
-func MakeHub() *Hub {
+// constructor for hub
+func makeHub() *Hub {
 	hub := new(Hub)
 	hub.channels = make(map[string]*Channel)
 	hub.upgrader = websocket.Upgrader{}
@@ -33,8 +33,6 @@ func (h *Hub) handleWebSockets(w http.ResponseWriter, r *http.Request) {
 	path := mux.Vars(r)
 	channelName := path["channel"]
 
-	h.checkChannel(channelName)
-
 	h.upgrader.CheckOrigin = func(*http.Request) bool { return true } // allow requests from wherever
 	ws, err := h.upgrader.Upgrade(w, r, nil)                          // upgrade http request to web socket
 	if err != nil {
@@ -43,7 +41,8 @@ func (h *Hub) handleWebSockets(w http.ResponseWriter, r *http.Request) {
 
 	defer ws.Close()
 
-	h.channels[channelName].clients[ws] = true // add new websocket to room
+	h.checkChannel(channelName)
+	h.channels[channelName].JoinChannel(ws)
 
 	for {
 		var msg message
