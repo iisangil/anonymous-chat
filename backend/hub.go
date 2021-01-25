@@ -31,12 +31,7 @@ func (h *Hub) checkChannel(name string) {
 
 func (h *Hub) handleWebSockets(w http.ResponseWriter, r *http.Request) {
 	path := mux.Vars(r)
-	var channelName string
-	if channel, ok := path["channel"]; !ok {
-		channelName = "global"
-	} else {
-		channelName = channel
-	}
+	channelName := path["channel"]
 
 	h.checkChannel(channelName)
 
@@ -48,7 +43,7 @@ func (h *Hub) handleWebSockets(w http.ResponseWriter, r *http.Request) {
 
 	defer ws.Close()
 
-	h.channels[channelName].clients[ws] = true // add new websocket to roo
+	h.channels[channelName].clients[ws] = true // add new websocket to room
 
 	for {
 		var msg message
