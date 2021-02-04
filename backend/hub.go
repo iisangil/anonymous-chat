@@ -33,6 +33,7 @@ func (h *Hub) checkRoom(name string) *Room {
 func (h *Hub) handleWebSockets(w http.ResponseWriter, r *http.Request) {
 	path := mux.Vars(r)
 	roomName := path["room"]
+	// log.Println(roomName)
 
 	h.upgrader.CheckOrigin = func(*http.Request) bool { return true } // allow requests from wherever
 	ws, err := h.upgrader.Upgrade(w, r, nil)                          // upgrade http request to web socket
@@ -53,10 +54,11 @@ func (h *Hub) handleWebSockets(w http.ResponseWriter, r *http.Request) {
 
 		err := ws.ReadJSON(&msg)
 		if err != nil {
-			log.Printf("error ReadJSON: %v", err)
+			// log.Printf("error ReadJSON: %v", err)
 			room.leaveRoom(id)
 			break
 		}
+		// log.Println(msg)
 
 		client.sendMessage(msg)
 	}
