@@ -9,10 +9,12 @@ type Client struct {
 	channel chan Message
 }
 
-func makeClient(id int) *Client {
+func makeClient(id int, ws *websocket.Conn) *Client {
 	client := new(Client)
 	client.id = id
+	client.ws = ws
 	client.channel = make(chan Message)
+	return client
 }
 
 func (c *Client) sendMessage(msg Message) {

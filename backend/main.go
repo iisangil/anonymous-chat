@@ -1,39 +1,36 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-
 	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 )
 
+// Message struct to hold message information
 type Message struct {
 	Username string `json:"username"`
 	Message  string `json:"message"`
 	Channel  string `json:"channel"`
 }
 
-var clients = make(map[*websocket.Conn]bool) // connected clients
-var broadcast = make(chan Message)           // channel to broadcast messages
-var upgrader = websocket.Upgrader{}          // upgrader for websockets
+// var clients = make(map[*websocket.Conn]bool) // connected clients
+// var broadcast = make(chan Message)           // channel to broadcast messages
+// var upgrader = websocket.Upgrader{}          // upgrader for websockets
 
 func main() {
 	hub := makeHub()
 	r := mux.NewRouter()
-	r.HandleFunc("/ws/{channel}", hub.handleWebSockets)
+	r.HandleFunc("/ws/{room}", hub.handleWebSockets)
 }
 
-func main() {
-	http.HandleFunc("/ws", handleWebSockets) // websocket initiation route
-	go handleMessages()                      // goroutine to handle sending out messages
-	err := http.ListenAndServe(":8000", nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	}
-}
+// func main() {
+// 	http.HandleFunc("/ws", handleWebSockets) // websocket initiation route
+// 	go handleMessages()                      // goroutine to handle sending out messages
+// 	err := http.ListenAndServe(":8000", nil)
+// 	if err != nil {
+// 		log.Fatal("ListenAndServe: ", err)
+// 	}
+// }
 
+/**
 func handleWebSockets(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(*http.Request) bool { return true } // allow requests from wherever
 	ws, err := upgrader.Upgrade(w, r, nil)                          // upgrade http request to web socket
@@ -47,7 +44,7 @@ func handleWebSockets(w http.ResponseWriter, r *http.Request) {
 
 	// loop that accepts messages and broadcasts to channel
 	for {
-		var msg message
+		var msg Message
 
 		err := ws.ReadJSON(&msg) // read in message and parse as json
 		if err != nil {
@@ -79,3 +76,4 @@ func handleMessages() {
 		}
 	}
 }
+**/

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"github.com/gorilla/websocket"
 )
 
 // Room for messaging
@@ -13,7 +13,7 @@ type Room struct {
 
 // constructor for channels
 func makeRoom(name string) *Room {
-	room := new(Channel)
+	room := new(Room)
 	room.name = name
 	room.clients = make(map[int]*Client)
 	room.index = 0
@@ -21,23 +21,32 @@ func makeRoom(name string) *Room {
 	return room
 }
 
-func (c *Room) joinRoom() int {
+func (c *Room) joinRoom(ws *websocket.Conn) int {
 	c.index++
-	client := makeClient(c.index)
+	client := makeClient(c.index, ws)
 	c.clients[c.index] = client
 	return c.index
 }
 
-func (c *Room) handleMessages(id int) {
-	for {
-		msg := <-c.clients[id].channel
+func (c *Room) leaveRoom(id int) {
+	c.clients[id].ws.Close()
+	delete(c.clients, id)
+}
 
-		for client := range c.clients {
-			err := client.WriteJSON(msg)
-			if err != nil {
-				log.Print("error write JSON: %v", err)
-				client.Close()
-				delete(c.clients, client)
+func (c *Room) getClient(id int) *Client {
+	return c.clients[id]
+}
+
+func (c *Room) handleMessages(id int) {
+	if _, ok := c.clients[id]; ok {
+		for {
+			msg := <-c.clients[id].channel
+
+			for key, client := range c.clients {
+				err := client.ws.WriteJSON(msg)
+				if err != nil {
+					c.leaveRoom(key)
+				}
 			}
 		}
 	}
