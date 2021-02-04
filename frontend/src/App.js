@@ -4,6 +4,7 @@ import './App.css';
 function App() {
   const [status, setStatus] = useState(false);
   const [username, setUsername] = useState('');
+  const [room, setRoom] = useState("global")
   const [messages, setMessages] = useState([]);
   const ws = useRef(null);
   const [text, setText] = useState('');
@@ -20,13 +21,18 @@ function App() {
     };
   });
 
-  const handleUsername = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     const username = e.target.username.value;
+    const roomName = e.target.roomName.value;
+    
     setUsername(username);
+    if (roomName !== "") {
+      setRoom(roomName);
+    }
     setStatus(prevStatus => !prevStatus);
 
-    ws.current = new WebSocket("ws://localhost:8000/ws");
+    ws.current = new WebSocket("ws://localhost:8000/ws/"+roomName);
   }
 
   const handleMessages = (e) => {
@@ -58,6 +64,9 @@ function App() {
         <div>
           {status &&
           <div>
+            <div>
+              {room}
+            </div>
             <div >
             {messages.map((message) => {
               return (
@@ -76,8 +85,9 @@ function App() {
           </div>
           }
           {!status &&
-          <form onSubmit={handleUsername}>
-            <input type='text' name='username' placeholder='enter username' autoComplete="off" />
+          <form onSubmit={handleLogin}>
+            <input type='text' name='username' placeholder='enter username' autoComplete='off' />
+            <input type='text' name='roomName' placeholder='enter room name' autoComplete='off' />
             <input type='submit' value='enter' />
           </form>
           }
