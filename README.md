@@ -18,4 +18,4 @@ The frontend can also be ran with npm or other package managers.
 
 The backend server is currently set to run in localhost:8000, and the frontend is set to run in localhost:3000.
 
-Once both the backend and the frontend are running, go to localhost:3000 and login to begin :)
+Once both the backend and the frontend are running, go to `localhost:3000` and login to begin :)
