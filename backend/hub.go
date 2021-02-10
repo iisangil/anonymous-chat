@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -12,21 +13,23 @@ import (
 type Hub struct {
 	rooms    map[string]*Room
 	upgrader websocket.Upgrader
+	lock     sync.Mutex
 }
 
 // constructor for hub
 func makeHub() *Hub {
 	hub := new(Hub)
 	hub.rooms = make(map[string]*Room)
-	hub.upgrader = websocket.Upgrader{}
 
 	return hub
 }
 
 func (h *Hub) checkRoom(name string) *Room {
+	h.lock.Lock()
 	if _, ok := h.rooms[name]; !ok {
 		h.rooms[name] = makeRoom(name)
 	}
+	h.lock.Unlock()
 	return h.rooms[name]
 }
 
