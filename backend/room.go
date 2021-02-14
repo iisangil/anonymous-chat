@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -30,11 +31,10 @@ func (r *Room) joinRoom(ws *websocket.Conn) int {
 	client := makeClient(r.index, ws)
 	r.clients[r.index] = client
 	r.lock.Unlock()
-	return c.index
+	return r.index
 }
 
 func (r *Room) leaveRoom(id int) {
-	r.clients[id].ws.Close()
 	r.lock.Lock()
 	delete(r.clients, id)
 	r.lock.Unlock()
@@ -58,5 +58,22 @@ func (r *Room) handleMessages(id int) {
 				}
 			}
 		}
+	}
+
+	r.lock.Lock()
+	self := r.clients[id]
+	r.lock.Unlock()
+
+	for {
+		msg := <-self.channel
+
+		r.lock.Lock()
+		for _, client := range r.clients {
+			err := client.ws.WriteJSON(msg)
+			if err != nil {
+				log.Println(err)
+			}
+		}
+		r.lock.Unlock()
 	}
 }

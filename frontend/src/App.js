@@ -38,10 +38,10 @@ function App() {
   const handleMessages = (e) => {
     e.preventDefault();
     const message = e.target.message.value;
-    const toSend = {"username": username, "message": message};
-
-    ws.current.send(JSON.stringify(toSend))
-
+    if (message !== "") {
+      const toSend = {"username": username, "message": message};
+      ws.current.send(JSON.stringify(toSend));
+    }
     setText("");
   }
 

@@ -20,6 +20,7 @@ type Hub struct {
 func makeHub() *Hub {
 	hub := new(Hub)
 	hub.rooms = make(map[string]*Room)
+	hub.upgrader.CheckOrigin = func(*http.Request) bool { return true } // allow requests from wherever
 
 	return hub
 }
@@ -38,8 +39,7 @@ func (h *Hub) handleWebSockets(w http.ResponseWriter, r *http.Request) {
 	roomName := path["room"]
 	// log.Println(roomName)
 
-	h.upgrader.CheckOrigin = func(*http.Request) bool { return true } // allow requests from wherever
-	ws, err := h.upgrader.Upgrade(w, r, nil)                          // upgrade http request to web socket
+	ws, err := h.upgrader.Upgrade(w, r, nil) // upgrade http request to web socket
 	if err != nil {
 		log.Fatal("Upgrade: ", err)
 	}
