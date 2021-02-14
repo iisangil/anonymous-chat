@@ -1,6 +1,9 @@
 package main
 
 import (
+	"log"
+	"sync"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -9,6 +12,7 @@ type Room struct {
 	name    string
 	clients map[int]*Client
 	index   int
+	lock    sync.Mutex
 }
 
 // constructor for channels
@@ -21,33 +25,55 @@ func makeRoom(name string) *Room {
 	return room
 }
 
-func (c *Room) joinRoom(ws *websocket.Conn) int {
-	c.index++
-	client := makeClient(c.index, ws)
-	c.clients[c.index] = client
-	return c.index
+func (r *Room) joinRoom(ws *websocket.Conn) int {
+	r.lock.Lock()
+	r.index++
+	client := makeClient(r.index, ws)
+	r.clients[r.index] = client
+	r.lock.Unlock()
+	return r.index
 }
 
-func (c *Room) leaveRoom(id int) {
-	c.clients[id].ws.Close()
-	delete(c.clients, id)
+func (r *Room) leaveRoom(id int) {
+	r.lock.Lock()
+	delete(r.clients, id)
+	r.lock.Unlock()
 }
 
-func (c *Room) getClient(id int) *Client {
-	return c.clients[id]
+func (r *Room) getClient(id int) *Client {
+	return r.clients[id]
 }
 
-func (c *Room) handleMessages(id int) {
-	if _, ok := c.clients[id]; ok {
+func (r *Room) handleMessages(id int) {
+	r.lock.Lock()
+	if thing, ok := r.clients[id]; ok {
+		r.lock.Unlock()
 		for {
-			msg := <-c.clients[id].channel
+			msg := <-thing.channel
 
-			for key, client := range c.clients {
+			for key, client := range r.clients {
 				err := client.ws.WriteJSON(msg)
 				if err != nil {
-					c.leaveRoom(key)
+					r.leaveRoom(key)
 				}
 			}
 		}
+	}
+
+	r.lock.Lock()
+	self := r.clients[id]
+	r.lock.Unlock()
+
+	for {
+		msg := <-self.channel
+
+		r.lock.Lock()
+		for _, client := range r.clients {
+			err := client.ws.WriteJSON(msg)
+			if err != nil {
+				log.Println(err)
+			}
+		}
+		r.lock.Unlock()
 	}
 }
