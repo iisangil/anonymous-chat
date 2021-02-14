@@ -3,11 +3,11 @@ import './App.css';
 
 function App() {
   const [status, setStatus] = useState(false);
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
   const [room, setRoom] = useState("global")
   const [messages, setMessages] = useState([]);
   const ws = useRef(null);
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
 
   useEffect(() => {
     if (!ws.current) return;
@@ -25,14 +25,16 @@ function App() {
     e.preventDefault();
     const username = e.target.username.value;
     const roomName = e.target.roomName.value;
-    
-    setUsername(username);
-    if (roomName !== "") {
-      setRoom(roomName);
-    }
-    setStatus(prevStatus => !prevStatus);
 
-    ws.current = new WebSocket("ws://localhost:8000/ws/"+room);
+    if (username !== "") {
+      setUsername(username);
+      if (roomName !== "") {
+        setRoom(roomName);
+      }
+      setStatus(prevStatus => !prevStatus);
+
+      ws.current = new WebSocket("ws://localhost:8000/ws/"+room);
+    }
   }
 
   const handleMessages = (e) => {
@@ -49,6 +51,18 @@ function App() {
     e.preventDefault();
     const { value } = e.target;
     setText(value);
+  }
+
+  const leaveRoom = (e) => {
+    e.preventDefault();
+
+    ws.current.close();
+    ws.current = null;
+    
+    setStatus(prevStatus => !prevStatus);
+    setUsername("");
+    setRoom("global");
+    setMessages([]);
   }
 
   return (
@@ -84,6 +98,9 @@ function App() {
             <form onSubmit={handleMessages}>
               <input type='text' name='message' placeholder='enter message' value={text} onChange={handleText} autoComplete="off" />
               <input type='submit' value='enter' />
+            </form>
+            <form onSubmit={leaveRoom}>
+              <input type='submit' value='Leave room' />
             </form>
           </div>
           }
