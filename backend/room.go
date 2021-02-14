@@ -46,21 +46,6 @@ func (r *Room) getClient(id int) *Client {
 
 func (r *Room) handleMessages(id int) {
 	r.lock.Lock()
-	if thing, ok := r.clients[id]; ok {
-		r.lock.Unlock()
-		for {
-			msg := <-thing.channel
-
-			for key, client := range r.clients {
-				err := client.ws.WriteJSON(msg)
-				if err != nil {
-					r.leaveRoom(key)
-				}
-			}
-		}
-	}
-
-	r.lock.Lock()
 	self := r.clients[id]
 	r.lock.Unlock()
 
