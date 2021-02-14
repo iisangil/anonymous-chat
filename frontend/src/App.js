@@ -32,7 +32,7 @@ function App() {
     }
     setStatus(prevStatus => !prevStatus);
 
-    ws.current = new WebSocket("ws://localhost:8000/ws/"+roomName);
+    ws.current = new WebSocket("ws://localhost:8000/ws/"+room);
   }
 
   const handleMessages = (e) => {
@@ -64,9 +64,12 @@ function App() {
         <div>
           {status &&
           <div>
-            <div>
-              {room}
-            </div>
+            <p>
+              Room: {room}
+            </p>
+            <p>
+              Username: {username}
+            </p>
             <div >
             {messages.map((message) => {
               return (
