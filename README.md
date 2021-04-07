@@ -9,6 +9,11 @@ go run main.go hub.go room.go client.go
 ```
 
 To run the frontend, perform the following in the frontend folder.
+You must run
+```
+yarn install
+```
+if it's your first time starting this up. Then, you may run
 
 ```
 yarn start
